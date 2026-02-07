@@ -1,0 +1,83 @@
+@page "/editalbum"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@using BlazorDBDemo
+@using Microsoft.AspNetCore.WebUtilities;
+
+<PageTitle>Edit Album</PageTitle>
+
+<h1>Edit Album</h1>
+
+<div id='maindiv'>
+    <EditForm method='post' OnValidSubmit="editAlbum" Model="albumdta" FormName="editalbum">
+        <table border=0 cellpadding="5">
+        <tr>
+            <td><label for 'title'>Title: </label></td>
+            <td><InputText id='title' @bind-Value="albumdta.Title" size=@albumdta.Title.Length/></td>
+        </tr>
+        <tr>
+            <td><label for 'artist'>Artist : </label></td>
+            <td><InputText id='artist' @bind-Value="albumdta.ArtistName" size=@albumdta.ArtistName.Length/></td>
+        </tr>
+        <tr>
+            <td><label for 'genre'>Genre : </label></td>
+            <td><InputText id='genre' @bind-Value="albumdta.Genrename" size=@albumdta.Genrename.Length/></td>
+        </tr>
+        <tr>
+            <td><label for 'tracks'>Number Tracks : </label></td>
+            <td><InputNumber id='tracks' @bind-Value="albumdta.NumberTracks" size=5 readonly/></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td><button type="submit" >Update</button></td>
+        </tr>
+
+        </table>
+        </EditForm>
+</div>
+
+<div>
+    <a href="/albumsgrid">Back to List</a>
+</div>
+
+
+@code {
+
+    System.Uri uri;
+    string ?action;
+    
+    private Album albumdta = new Album(0, "", 0,"", 0, "", 0);
+
+    protected override async Task OnInitializedAsync()
+    {
+        uri=NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        
+        
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out var getVar1);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("albumname", out var getVar2);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("artistname", out var getVar3);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("genre", out var getVar4);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("tracks", out var getVar5);
+        albumdta.Albumid=Convert.ToInt32(getVar1);
+        albumdta.Title=Convert.ToString(getVar2);
+        albumdta.ArtistName=Convert.ToString(getVar3);
+        albumdta.Genrename=Convert.ToString(getVar4);
+        albumdta.NumberTracks=5;      //Convert.ToInt32(getVar5);
+    }
+    
+
+
+    private void CallUpdate(){
+        BlazorDBDemo.Albums? albumlisting;
+        albumlisting=new BlazorDBDemo.Albums();
+        albumlisting.UpdateAlbum(albumdta);
+    
+    }
+
+
+    private async Task editAlbum() {
+        await Task.Run(CallUpdate);
+        NavigationManager.NavigateTo("/albumsgrid");
+    }
+
+}

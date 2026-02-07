@@ -1,0 +1,51 @@
+﻿@page "/demogetresponse"
+@attribute [StreamRendering]
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities;
+
+<PageTitle>Dummy Page</PageTitle>
+
+<h1>Dummy Page</h1>
+
+<p>This is a dummy page to test gets</p>
+
+@if (delay == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{   
+    <p><em>Done </em></p>
+    <p>URL=@uri  
+    <br/>Action = @action  
+    <br/>ID = @id
+    <br/>Name = @name
+    </p>
+}
+
+<p><a href=''>Return to main page</a>  </p>
+
+@code {
+    private string delay;
+    System.Uri uri;
+    string ?action;
+    int ?id;
+    string ?name;
+
+    protected override async Task OnInitializedAsync()
+    {
+        uri=NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        await Task.Delay(1000);
+        delay="done";
+        
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out var getVar1);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("action", out var getVar2);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("action", out var getVar3);
+        action=Convert.ToString(getVar2);
+        id=Convert.ToInt32(getVar1);
+        name=Convert.ToString(getVar3);
+
+    }
+
+}

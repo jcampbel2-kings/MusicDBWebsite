@@ -1,0 +1,56 @@
+@page "/genregrid"
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorDBDemo
+@rendermode InteractiveServer
+
+
+<PageTitle>Genre</PageTitle>
+
+<h1>Genre</h1>
+
+@if (genrelisting == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<div class='maxwidth'>
+<Paginator State="state"/>
+<QuickGrid Items="genrequery" class="table" Pagination="state">
+    <PropertyColumn Property="@(p => p.Genrename)" Title="Genre" Sortable="true" class="widecol"/>
+     <TemplateColumn Context="genre">
+        <a href=/albumsgrid?@($"genre={genre.Genrename}")>View Albums</a>
+    </TemplateColumn>
+</QuickGrid>
+</div>
+
+   
+}
+
+@code {
+
+    private BlazorDBDemo.Genres? genrelisting;
+    private IQueryable<BlazorDBDemo.Genre> genrequery;
+    private PaginationState state =new PaginationState {ItemsPerPage=20};
+
+    private void GetGenreData(){
+        genrelisting = new BlazorDBDemo.Genres();
+        genrequery=genrelisting.GenreList.AsQueryable();
+        }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(GetGenreData);
+    }
+
+
+
+}
+
+<style>
+    .widecol {width:30%;}
+    .narrowcol {width:10%;}
+    .maxwidth {max-width:500px}
+</style>

@@ -1,0 +1,113 @@
+@page "/albumsgrid"
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorDBDemo
+@using Microsoft.AspNetCore.WebUtilities;
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+
+<PageTitle>Albums</PageTitle>
+
+<h1>Albums grid 2</h1>
+
+<p>This component demonstrates loading data from a SQL DB</p>
+
+@if (albumlisting == null || !albumlisting.AlbumsLoaded)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <a href="/addalbum">New Album</a>
+    </div>
+
+<Paginator State="state"/>
+
+<QuickGrid Items="albumquery" class="table" Pagination="state" theme="default">
+    <PropertyColumn Property="@(p => p.Title)" Title="Album Name" Sortable="true" class="widecol">
+        <ColumnOptions>
+            <div >
+                <input type="search" @bind="albumFilter" @bind:event="oninput" autofocus />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
+    <PropertyColumn Property="@(p => p.ArtistName)" Title="Artist" Sortable="true" class="widecol"/>
+    <PropertyColumn Property="@(p => p.Genrename)" Title="Genre" Sortable="true" class="narrowcol"/>
+    <PropertyColumn Property="@(p => p.NumberTracks)" Title="Number of Tracks" class="narrowcol" />
+    <TemplateColumn Context="album">
+        <a href="@($"/editalbum?{geteditpara(album)}")">Edit</a>
+        <a href="@($"/deletealbum?{getdelpara(album)}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+
+
+   
+}
+
+@code {
+
+    System.Uri uri;
+    private BlazorDBDemo.Albums? albumlisting;
+    private IQueryable<BlazorDBDemo.Album> albumquery;
+
+    private string artistFilter="";
+    private string albumFilter="";
+    private string genreFilter="";
+    PaginationState state =new PaginationState {ItemsPerPage=10};
+    
+    private void GetAlbumData(){
+        albumlisting = new BlazorDBDemo.Albums();
+        albumlisting.LoadAlbums();
+        if (genreFilter=="none" && artistFilter=="none"){
+            albumquery=albumlisting.AlbumsList.AsQueryable().Where(a=>a.Title.Contains(albumFilter));
+
+        } else if (genreFilter!="none"){
+            albumquery=albumlisting.AlbumsList.AsQueryable().Where(a=>a.Title.Contains(albumFilter) && a.Genrename==genreFilter);
+        } else if (artistFilter!="none"){
+            albumquery=albumlisting.AlbumsList.AsQueryable().Where(a=>a.Title.Contains(albumFilter) && a.ArtistName==artistFilter);
+        } else {
+            albumquery=albumlisting.AlbumsList.AsQueryable().Where(a=>a.Title.Contains(albumFilter));
+        }
+        
+//        albumquery=albumlisting.AlbumsList.AsQueryable().Where(a=>a.ArtistName.Contains(artistFilter) 
+//                                                           && a.Title.Contains(albumFilter)
+//                                                            && a.Genrename.Contains(genreFilter));
+        }
+
+    private string geteditpara(Album al){
+        return $"id={al.Albumid}&albumname={al.Title}&artistname={al.ArtistName}&genre={al.Genrename}&tracks={al.NumberTracks}";
+    }
+
+    private string getdelpara(Album al){
+        return $"id={al.Albumid}&albumname={al.Title}&artistname={al.ArtistName}&action=edit";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        uri=NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("genre", out var getVar1);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("artist", out var getVar2);
+        genreFilter=Convert.ToString(getVar1);
+        artistFilter=Convert.ToString(getVar2);
+        if (genreFilter is null){
+            genreFilter="none";    
+        } 
+        if (artistFilter is null){
+            artistFilter="none";
+        }
+
+        await Task.Run(GetAlbumData);
+    }
+
+
+
+
+}
+
+<style>
+    .widecol {width:30%;}
+    .narrowcol {width:12%;}
+</style>

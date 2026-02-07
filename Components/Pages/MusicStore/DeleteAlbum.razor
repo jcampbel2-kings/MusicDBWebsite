@@ -1,0 +1,68 @@
+@page "/deletealbum"
+@rendermode InteractiveServer
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.WebUtilities;
+
+<PageTitle>Edit Album</PageTitle>
+
+<h1>Edit Album</h1>
+
+<div id='maindiv'>
+    <EditForm method='post' OnValidSubmit="delAlbum" Model="albumdta" FormName="editalbum">
+        <label for 'title'>Title: </label>
+        <InputText id='title' @bind-Value="albumdta.AlbumTitle" readonly/>
+        
+        <label for 'artistid'>Artist : </label>
+        <InputText id='artist' @bind-Value="albumdta.Artist" readonly/>
+
+         <button type="submit" >Confirm Delete</button>
+    </EditForm>
+</div>
+
+<div>
+    <a href="/albumsgrid">Back to List</a>
+</div>
+
+
+@code {
+    public class AlbumDta{
+        public int AlbumID;
+        public string AlbumTitle;
+        public string Artist;
+    }
+    System.Uri uri;
+    string ?action;
+    
+    private AlbumDta albumdta = new AlbumDta();
+
+    protected override async Task OnInitializedAsync()
+    {
+        uri=NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        // Simulate asynchronous loading to demonstrate streaming rendering
+        
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("id", out var getVar1);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("albumname", out var getVar2);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("artistname", out var getVar3);
+        QueryHelpers.ParseQuery(uri.Query).TryGetValue("action", out var getVar4);
+        albumdta.AlbumID=Convert.ToInt32(getVar1);
+        albumdta.AlbumTitle=Convert.ToString(getVar2);
+        albumdta.Artist=Convert.ToString(getVar3);
+        action=Convert.ToString(getVar4);
+    }
+    
+
+
+    private void CallDelete(){
+        BlazorDBDemo.Albums? albumlisting;
+        albumlisting=new BlazorDBDemo.Albums();
+        albumlisting.DeleteAlbum(albumdta.AlbumID);
+    
+    }
+
+
+    private async Task delAlbum() {
+        await Task.Run(CallDelete);
+        NavigationManager.NavigateTo("/albumsgrid");
+    }
+
+}

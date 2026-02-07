@@ -1,0 +1,63 @@
+@page "/artistgrid"
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorDBDemo
+@rendermode InteractiveServer
+
+
+<PageTitle>Artists</PageTitle>
+
+<h1>Artists</h1>
+
+@if (artistlisting == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+<div class='maxwidth'>
+<Paginator State="state"/>
+<QuickGrid Items="artistquery" class="table" Pagination="state">
+    <PropertyColumn Property="@(p => p.Artistname)" Title="Artist" Sortable="true" class="widecol">
+        <ColumnOptions>
+            <div >
+                <input type="search" @bind="artistFilter" @bind:event="oninput" autofocus />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
+     <TemplateColumn Context="artist">
+        <a href=/albumsgrid?@($"artist={artist.Artistname}")>View Albums</a>
+    </TemplateColumn>
+</QuickGrid>
+</div>
+
+   
+}
+
+@code {
+
+    private BlazorDBDemo.Artists? artistlisting;
+    private IQueryable<BlazorDBDemo.Artist> artistquery;
+    private PaginationState state =new PaginationState {ItemsPerPage=20};
+    private string artistFilter="";
+
+    private void GetArtistData(){
+        artistlisting = new BlazorDBDemo.Artists();
+        artistquery=artistlisting.ArtistList.AsQueryable().Where(a=>a.Artistname.Contains(artistFilter));;
+        }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(GetArtistData);
+    }
+
+
+
+}
+
+<style>
+    .widecol {width:60%;}
+    .narrowcol {width:10%;}
+    .maxwidth {max-width:1000px}
+</style>

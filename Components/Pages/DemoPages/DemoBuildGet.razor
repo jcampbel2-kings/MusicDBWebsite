@@ -1,0 +1,39 @@
+@page "/demobuildget"
+@attribute [StreamRendering]
+
+<PageTitle>Demo Get Page</PageTitle>
+
+<h1>Demo Get</h1>
+
+<p>This component a get method</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th aria-label="Col1">  </th>
+                <th aria-label="Col2">ID</th>
+                <th aria-label="Col3">Action</th>
+                <th aria-label="Col4">Name</th>
+            </tr>
+        </thead>
+        <tbody>
+
+                <tr> 
+                    <td>Get Option 1</td>
+                    <td>Add</td>
+                    <td colspan=3><a href='/demogetresponse?id=1&name=name1&action=edit'>action = edit, id = 1, name = name1</a></td>        
+                </tr>
+                <tr> 
+                    <td>Get Option 1</td>
+                    <td>Add</td>
+                    <td colspan=3><a href='/demogetresponse?id=2&name=name2&action=delete'>action = delete, id = 2, name = name2</a></td>        
+                </tr>
+                <tr> 
+                    <td>Get Option no parameters</td>
+                    <td>Add</td>
+                    <td colspan=3><a href='/demogetresponse'>No Parameters</a></td>        
+                </tr>
+        </tbody>
+    </table>
+
+

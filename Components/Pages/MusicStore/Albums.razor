@@ -1,0 +1,61 @@
+﻿@page "/albums"
+@attribute [StreamRendering]
+
+<PageTitle>Albums</PageTitle>
+
+<h1>Albums</h1>
+
+<p>This component demonstrates loading data from a SQL DB</p>
+
+@if (albumlisting == null || !albumlisting.AlbumsLoaded)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div>
+        <a href="/addalbum">New Album</a>
+    </div>
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th aria-label="Title">Title</th>
+                <th aria-label="Artist">Artist</th>
+                <th aria-label="Genre">Genre</th>
+                <th aria-label="Number of Tracks">Track</th>
+                <th aria-label="Actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var album in albumlisting.AlbumsList)
+            {
+                string ?para=$"id={album.Albumid}&albumname={album.Title}&artistname={album.ArtistName}&genre={album.Genrename}&tracks={album.NumberTracks}";
+                <tr>
+                    
+                    <td>@album.Title</td>
+                    <td>@album.ArtistName</td>
+                    <td>@album.Genrename</td>
+                    <td>@album.NumberTracks</td>
+                    <td><a href='/editalbum?@para'>Edit</a></td>
+                    <td><a href='/deletealbum?id=@album.Albumid&albumname=@album.Title&artistname=@album.ArtistName&action=edit'>Delete</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private BlazorDBDemo.Albums? albumlisting;
+
+    private void GetAlbumData(){
+        albumlisting = new BlazorDBDemo.Albums();
+        albumlisting.LoadAlbums();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Run(GetAlbumData);
+    }
+
+}
